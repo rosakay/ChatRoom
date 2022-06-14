@@ -22,16 +22,13 @@ namespace ChatServer
                 Console.WriteLine("Server start at port {0}", port);
                 listener.Start();
 
-                Console.WriteLine("Waiting for a connection... ");
-                var client = listener.AcceptTcpClient();
-
-                var address = client.Client.RemoteEndPoint.ToString();
-                Console.WriteLine("Client has connected from {0}", address);
-
                 while (true)
                 {
-                    Receive(client);
-                    System.Threading.Thread.Sleep(1000);
+                    Console.WriteLine("Waiting for a connection... ");
+                    var client = listener.AcceptTcpClient();
+
+                    var address = client.Client.RemoteEndPoint.ToString();
+                    Console.WriteLine("Client has connected from {0}", address);
                 }
             }
             catch (SocketException e)
@@ -59,7 +56,7 @@ namespace ChatServer
             var buffer = new byte[numBytes];
             var bytesRead = stream.Read(buffer, 0, numBytes);
 
-            var request = System.Text.Encoding.ASCII.GetString(buffer).Substring(0, bytesRead);
+            var request = System.Text.Encoding.Unicode.GetString(buffer);
             Console.WriteLine("Text: " + request);
         }
     }
