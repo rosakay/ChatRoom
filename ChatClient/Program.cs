@@ -30,6 +30,18 @@ namespace ChatClient
                 }
 
                 Console.WriteLine("Connected to chat server");
+
+                var counter = 0;
+                while (counter < 5)
+                {
+                    counter++;
+                    var say = Console.ReadLine();
+                    //var msg = "go-go-go-" + counter;
+                    var msg = say;
+                    Send(client, msg);
+                    Console.WriteLine("message sent: " + msg);
+                    System.Threading.Thread.Sleep(1000);
+                }
             }
             catch (ArgumentNullException e)
             {
@@ -45,6 +57,12 @@ namespace ChatClient
                 Console.WriteLine("Disconnected");
                 Console.Read();
             }
+        }
+        private static void Send(TcpClient client, string msg)
+        {
+            var requestBuffer = System.Text.Encoding.ASCII.GetBytes(msg);
+
+            client.GetStream().Write(requestBuffer, 0, requestBuffer.Length);
         }
     }
 }
