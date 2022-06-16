@@ -15,6 +15,7 @@ namespace ChatLibrary
         private TcpListener m_listener;
         private Thread m_handleThread;
         private readonly Dictionary<string, TcpClient> m_clients = new Dictionary<string, TcpClient>();
+        private readonly Dictionary<string, string> m_userNames = new Dictionary<string, string>();
 
         public ChatServer()
         {
@@ -45,6 +46,7 @@ namespace ChatLibrary
                 lock (m_clients)
                 {
                     m_clients.Add(clientId, client);
+                    m_userNames.Add(clientId, "Unknown");
                 }
             }
         }
@@ -83,9 +85,22 @@ namespace ChatLibrary
             var numBytes = client.Available;
             var buffer = new byte[numBytes];
             var bytesRead = stream.Read(buffer, 0, numBytes);
-
             var request = System.Text.Encoding.Unicode.GetString(buffer);
-            Console.WriteLine("Text: {0} from {1}", request, clientId);
+
+            if (request.StartsWith("LOGIN:", StringComparison.OrdinalIgnoreCase))
+            {
+                var tokens = request.Split(':');
+                m_userNames[clientId] = tokens[1];
+                Console.WriteLine($"Client {m_userNames[clientId]} Login from {clientId}");
+                return;
+            }
+
+            if (request.StartsWith("MESSAGE:", StringComparison.OrdinalIgnoreCase))
+            {
+                var tokens = request.Split(':');
+                var message = tokens[1];
+                Console.WriteLine($"Text: {message} from {m_userNames[clientId]}");
+            }
         }
     }
 }

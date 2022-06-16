@@ -45,10 +45,21 @@ namespace ChatLibrary
             Console.WriteLine("Disconnected");
         }
 
-        public void SendData(string message)
+        public void SetName(string name)
         {
-            var requestBuffer = System.Text.Encoding.Unicode.GetBytes(message);
+            var data = "LOGIN:" + name;
+            SendData(data);
+        }
 
+        public void SendMessage(string message)
+        {
+            var data = "MESSAGE:" + message;
+            SendData(data);
+        }
+
+        private void SendData(string data)
+        {
+            var requestBuffer = System.Text.Encoding.Unicode.GetBytes(data);
             m_client.GetStream().Write(requestBuffer, 0, requestBuffer.Length);
         }
     }

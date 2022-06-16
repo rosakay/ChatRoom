@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ChatServer
 {
-    internal class Server
+    internal class ChatServer
     {
         static HashSet<TcpClient> clients = new HashSet<TcpClient>();
 
