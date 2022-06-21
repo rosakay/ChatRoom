@@ -105,7 +105,7 @@ namespace ChatLibrary
             var numBytes = client.Available;
             var buffer = new byte[numBytes];
             var bytesRead = stream.Read(buffer, 0, numBytes);
-            var request = System.Text.Encoding.ASCII.GetString(buffer).Substring(0, bytesRead);
+            var request = System.Text.Encoding.Unicode.GetString(buffer);
 
             if (request.StartsWith("LOGIN:", StringComparison.OrdinalIgnoreCase))
             {
@@ -127,7 +127,7 @@ namespace ChatLibrary
         private void Broadcast(string senderId, string message)
         {
             var data = $"MESSAGE:{m_userNames[senderId]}:{message}";
-            var buffer = System.Text.Encoding.ASCII.GetBytes(data);
+            var buffer = System.Text.Encoding.Unicode.GetBytes(data);
 
             foreach (var clientId in m_clients.Keys)
             {

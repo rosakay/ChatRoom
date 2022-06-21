@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 
 namespace ChatLibrary
@@ -6,9 +7,11 @@ namespace ChatLibrary
     public class ChatClient
     {
         private TcpClient m_client;
+        private List<KeyValuePair<string, string>> m_messageList;
 
         public ChatClient()
         {
+            m_messageList = new List<KeyValuePair<string, string>>();
         }
 
         public bool Connect(string address, int port)
@@ -49,6 +52,14 @@ namespace ChatLibrary
             }
         }
 
+        public List<KeyValuePair<string, string>> GetMessages()
+        {
+            var messages = new List<KeyValuePair<string, string>>(m_messageList);
+            m_messageList.Clear();
+
+            return messages;
+        }
+
         private void HandleReceiveMessages(TcpClient client)
         {
             var stream = client.GetStream();
@@ -56,7 +67,7 @@ namespace ChatLibrary
             var numBytes = client.Available;
             var buffer = new byte[numBytes];
             var bytesRead = stream.Read(buffer, 0, numBytes);
-            var request = System.Text.Encoding.ASCII.GetString(buffer).Substring(0, bytesRead);
+            var request = System.Text.Encoding.Unicode.GetString(buffer);
 
             if (request.StartsWith("MESSAGE:", StringComparison.OrdinalIgnoreCase))
             {
@@ -67,11 +78,6 @@ namespace ChatLibrary
             }
         }
 
-        //public void SetName(string name)
-        //{
-        //    var data = "LOGIN:" + name;
-        //    SendData(data);
-        //}
         public void SetName(string name, string password)
         {
           var data = "LOGIN:" + name + ":" + password;
@@ -86,7 +92,7 @@ namespace ChatLibrary
 
         private void SendData(string data)
         {
-            var requestBuffer = System.Text.Encoding.ASCII.GetBytes(data);
+            var requestBuffer = System.Text.Encoding.Unicode.GetBytes(data);
             m_client.GetStream().Write(requestBuffer, 0, requestBuffer.Length);
         }
     }

@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Sockets;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChatClient
 {
@@ -38,6 +31,13 @@ namespace ChatClient
                 while (Console.KeyAvailable == false)
                 {
                     client.Refresh();
+
+                    var messages = client.GetMessages();
+                    foreach (var message in messages)
+                    {
+                        Console.WriteLine("{0}: {1}", message.Key, message.Value);
+                    }
+
                     System.Threading.Thread.Sleep(1);
                 }
 
