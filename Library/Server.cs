@@ -17,9 +17,8 @@ namespace ChatLibrary
 
         public ChatServer()
         {
-            m_accounts.Add("arthur", "1111");
-            m_accounts.Add("jojo", "1111");
-            m_accounts.Add("Karl", "aaa8");
+            m_accounts.Add("sally", "1111");
+            m_accounts.Add("karl", "1111");
         }
 
         public void Bind(int port)
@@ -47,6 +46,7 @@ namespace ChatLibrary
                 lock (m_clients)
                 {
                     m_clients.Add(clientId, client);
+                    m_userNames.Add(clientId, "Unknown");
                 }
             }
         }
@@ -55,6 +55,8 @@ namespace ChatLibrary
         {
             while (true)
             {
+                var disconnectedClients = new List<string>();
+
                 lock (m_clients)
                 {
                     foreach (var clientId in m_clients.Keys)
@@ -63,6 +65,10 @@ namespace ChatLibrary
 
                         try
                         {
+                            if (!client.Connected)
+                            {
+                                disconnectedClients.Add(clientId);
+                            }
                             if (client.Available > 0)
                             {
                                 ReceiveMessage(clientId);
@@ -70,17 +76,25 @@ namespace ChatLibrary
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine("Client {0} Error: {1}", clientId, e.Message);
+                            Console.WriteLine("Client {0} Receive Error: {1}", clientId, e.Message);
                         }
+                    }
+
+                    foreach (var clientId in disconnectedClients)
+                    {
+                        RemoveClient(clientId);
                     }
                 }
             }
         }
 
-        private void SendData(TcpClient client, string data)
+        private void RemoveClient(string clientId)
         {
-            var requestBuffer = System.Text.Encoding.ASCII.GetBytes(data);
-            client.GetStream().Write(requestBuffer, 0, requestBuffer.Length);
+            Console.WriteLine("Client {0} has disconnected...", clientId);
+            var client = m_clients[clientId];
+            m_clients.Remove(clientId);
+            m_userNames.Remove(clientId);
+            client.Close();
         }
 
         private void ReceiveMessage(string clientId)
@@ -96,34 +110,8 @@ namespace ChatLibrary
             if (request.StartsWith("LOGIN:", StringComparison.OrdinalIgnoreCase))
             {
                 var tokens = request.Split(':');
-                if (tokens.Length != 3)
-                {
-                    Console.WriteLine("Client({0}) Login failed: parameters incorrect", clientId);
-                    SendData(client, "LOGIN:0");
-                    return;
-                }
-
-                var username = tokens[1];
-                var password = tokens[2];
-
-                if (!m_accounts.ContainsKey(username))
-                {
-                    Console.WriteLine("Client({0}) {1} Login failed: unknown client", clientId, username);
-                    SendData(client, "LOGIN:0");
-                    return;
-                }
-
-                if (m_accounts[username] != password)
-                {
-                    Console.WriteLine("Client({0}) {1} Login failed: password incorrect", clientId, username);
-                    SendData(client, "LOGIN:0");
-                    return;
-                }
-
-                m_userNames[clientId] = username;
-                Console.WriteLine("Client({0}) {1} Login success", clientId, username);
-
-                SendData(client, "LOGIN:1");
+                m_userNames[clientId] = tokens[1];
+                Console.WriteLine("Client {0} Login from {1}", m_userNames[clientId], clientId);
                 return;
             }
 
@@ -131,14 +119,28 @@ namespace ChatLibrary
             {
                 var tokens = request.Split(':');
                 var message = tokens[1];
+                Console.WriteLine("Text: {0} from {1}", message, m_userNames[clientId]);
+                Broadcast(clientId, message);
+            }
+        }
 
-                if (!m_userNames.ContainsKey(clientId))
+        private void Broadcast(string senderId, string message)
+        {
+            var data = $"MESSAGE:{m_userNames[senderId]}:{message}";
+            var buffer = System.Text.Encoding.ASCII.GetBytes(data);
+
+            foreach (var clientId in m_clients.Keys)
+            {
+                if (clientId != senderId)
                 {
-                    Console.WriteLine("Text: {0} from unauthenticated user", message);
-                }
-                else
-                {
-                    Console.WriteLine("Text: {0} from {1}", message, m_userNames[clientId]);
+                    try
+                    {
+                        m_clients[clientId].GetStream().Write(buffer, 0, buffer.Length);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Client {0} Send Failed: {1}", clientId, e.Message);
+                    }
                 }
             }
         }

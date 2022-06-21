@@ -41,25 +41,6 @@ namespace ChatLibrary
             Console.WriteLine("Disconnected");
         }
 
-        public void SetName(string name, string password)
-        {
-            var data = "LOGIN:" + name + ":" + password;
-            SendData(data);
-        }
-
-        public void SendMessage(string message)
-        {
-            var data = "MESSAGE:" + message;
-            SendData(data);
-        }
-
-        private void SendData(string data)
-        {
-            var requestBuffer = System.Text.Encoding.ASCII.GetBytes(data);
-            m_client.GetStream().Write(requestBuffer, 0, requestBuffer.Length);
-        }
-
-
         public void Refresh()
         {
             if (m_client.Available > 0)
@@ -77,18 +58,6 @@ namespace ChatLibrary
             var bytesRead = stream.Read(buffer, 0, numBytes);
             var request = System.Text.Encoding.ASCII.GetString(buffer).Substring(0, bytesRead);
 
-            if (request.StartsWith("LOGIN:1", StringComparison.OrdinalIgnoreCase))
-            {
-                Console.WriteLine("Login succeed");
-                return;
-            }
-
-            if (request.StartsWith("LOGIN:0", StringComparison.OrdinalIgnoreCase))
-            {
-                Console.WriteLine("Login failed");
-                return;
-            }
-
             if (request.StartsWith("MESSAGE:", StringComparison.OrdinalIgnoreCase))
             {
                 var tokens = request.Split(':');
@@ -96,6 +65,29 @@ namespace ChatLibrary
                 var message = tokens[2];
                 Console.WriteLine("{0}: {1}", sender, message);
             }
+        }
+
+        //public void SetName(string name)
+        //{
+        //    var data = "LOGIN:" + name;
+        //    SendData(data);
+        //}
+        public void SetName(string name, string password)
+        {
+          var data = "LOGIN:" + name + ":" + password;
+            SendData(data);
+        }
+
+        public void SendMessage(string message)
+        {
+            var data = "MESSAGE:" + message;
+            SendData(data);
+        }
+
+        private void SendData(string data)
+        {
+            var requestBuffer = System.Text.Encoding.ASCII.GetBytes(data);
+            m_client.GetStream().Write(requestBuffer, 0, requestBuffer.Length);
         }
     }
 }

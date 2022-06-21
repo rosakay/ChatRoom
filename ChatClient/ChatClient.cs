@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,6 +29,7 @@ namespace ChatClient
                 return;
             }
 
+            //client.SetName(name);
             client.SetName(name, password);
             Console.WriteLine("<You can press any key to start entering text...>");
 
