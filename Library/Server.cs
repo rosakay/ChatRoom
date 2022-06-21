@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ChatLibrary
 {
@@ -16,9 +13,13 @@ namespace ChatLibrary
         private Thread m_handleThread;
         private readonly Dictionary<string, TcpClient> m_clients = new Dictionary<string, TcpClient>();
         private readonly Dictionary<string, string> m_userNames = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> m_accounts = new Dictionary<string, string>();
 
         public ChatServer()
         {
+            m_accounts.Add("arthur", "1111");
+            m_accounts.Add("jojo", "1111");
+            m_accounts.Add("Karl", "aaa8");
         }
 
         public void Bind(int port)
@@ -46,7 +47,6 @@ namespace ChatLibrary
                 lock (m_clients)
                 {
                     m_clients.Add(clientId, client);
-                    m_userNames.Add(clientId, "Unknown");
                 }
             }
         }
@@ -77,6 +77,12 @@ namespace ChatLibrary
             }
         }
 
+        private void SendData(TcpClient client, string data)
+        {
+            var requestBuffer = System.Text.Encoding.ASCII.GetBytes(data);
+            client.GetStream().Write(requestBuffer, 0, requestBuffer.Length);
+        }
+
         private void ReceiveMessage(string clientId)
         {
             var client = m_clients[clientId];
@@ -85,13 +91,39 @@ namespace ChatLibrary
             var numBytes = client.Available;
             var buffer = new byte[numBytes];
             var bytesRead = stream.Read(buffer, 0, numBytes);
-            var request = System.Text.Encoding.Unicode.GetString(buffer);
+            var request = System.Text.Encoding.ASCII.GetString(buffer).Substring(0, bytesRead);
 
             if (request.StartsWith("LOGIN:", StringComparison.OrdinalIgnoreCase))
             {
                 var tokens = request.Split(':');
-                m_userNames[clientId] = tokens[1];
-                Console.WriteLine($"Client {m_userNames[clientId]} Login from {clientId}");
+                if (tokens.Length != 3)
+                {
+                    Console.WriteLine("Client({0}) Login failed: parameters incorrect", clientId);
+                    SendData(client, "LOGIN:0");
+                    return;
+                }
+
+                var username = tokens[1];
+                var password = tokens[2];
+
+                if (!m_accounts.ContainsKey(username))
+                {
+                    Console.WriteLine("Client({0}) {1} Login failed: unknown client", clientId, username);
+                    SendData(client, "LOGIN:0");
+                    return;
+                }
+
+                if (m_accounts[username] != password)
+                {
+                    Console.WriteLine("Client({0}) {1} Login failed: password incorrect", clientId, username);
+                    SendData(client, "LOGIN:0");
+                    return;
+                }
+
+                m_userNames[clientId] = username;
+                Console.WriteLine("Client({0}) {1} Login success", clientId, username);
+
+                SendData(client, "LOGIN:1");
                 return;
             }
 
@@ -99,7 +131,15 @@ namespace ChatLibrary
             {
                 var tokens = request.Split(':');
                 var message = tokens[1];
-                Console.WriteLine($"Text: {message} from {m_userNames[clientId]}");
+
+                if (!m_userNames.ContainsKey(clientId))
+                {
+                    Console.WriteLine("Text: {0} from unauthenticated user", message);
+                }
+                else
+                {
+                    Console.WriteLine("Text: {0} from {1}", message, m_userNames[clientId]);
+                }
             }
         }
     }
