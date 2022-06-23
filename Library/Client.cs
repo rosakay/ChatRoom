@@ -72,9 +72,9 @@ namespace ChatLibrary
         //    var data = "LOGIN:" + name;
         //    SendData(data);
         //}
-        public void SetName(string name, string password)
+        public void SetName(string name)
         {
-          var data = "LOGIN:" + name + ":" + password;
+          var data = "LOGIN:" + name;
             SendData(data);
         }
 

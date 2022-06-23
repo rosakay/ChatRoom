@@ -13,12 +13,9 @@ namespace ChatLibrary
         private Thread m_handleThread;
         private readonly Dictionary<string, TcpClient> m_clients = new Dictionary<string, TcpClient>();
         private readonly Dictionary<string, string> m_userNames = new Dictionary<string, string>();
-        private readonly Dictionary<string, string> m_accounts = new Dictionary<string, string>();
 
         public ChatServer()
         {
-            m_accounts.Add("sally", "1111");
-            m_accounts.Add("karl", "1111");
         }
 
         public void Bind(int port)
