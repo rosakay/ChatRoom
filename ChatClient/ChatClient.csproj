@@ -50,6 +50,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ChatCoreTest\ChatCoreTest.csproj">
+      <Project>{323062e9-da2a-4297-8b16-922f22b64da2}</Project>
+      <Name>ChatCoreTest</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Library\ChatLibrary.csproj">
       <Project>{e7a1f50a-bc6e-490e-97e6-8613cff6f9d0}</Project>
       <Name>ChatLibrary</Name>

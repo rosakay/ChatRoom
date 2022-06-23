@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace ChatCoreTest
 {
@@ -22,6 +23,7 @@ namespace ChatCoreTest
       {
         Console.Write(m_PacketData[i] + ", ");
       }
+      Console.ReadLine();
     }
 
     // write an integer into a byte array
