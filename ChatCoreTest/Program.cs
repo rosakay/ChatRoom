@@ -8,8 +8,8 @@ namespace ChatCoreTest
     {
         private static byte[] m_PacketData;
         private static byte[] m_PacketDataNoReverse;
+        private static byte[] m_PacketDataHomeWork;
         private static uint m_Pos;
-        private static uint r_Pos;
 
         public static void Main(string[] args)
         {
@@ -17,19 +17,28 @@ namespace ChatCoreTest
             m_PacketData = new byte[1024];
             m_Pos = 0;
 
-            r_Pos = 0;
-
             Write(109);
             Write(109.99f);
             Write("Hello!");
 
-            //Console.Write($"Output Byte array(length:{m_Pos}): ");
+            Console.WriteLine($"HomeWork1: ");
+            _Read(m_PacketDataNoReverse);   // HomeWork 1
 
+            m_PacketDataHomeWork = new byte[m_Pos+1];   // HomeWork 2
+
+            //Console.Write($"Output Byte array(length:{m_Pos}): ");
+            Console.Write($"HomeWork2: ");
+            m_PacketDataHomeWork[0] = (byte)m_Pos;
             for (var i = 0; i < m_Pos; i++)
             {
-                Console.Write(m_PacketData[i] + ", ");
+                //Console.Write(m_PacketData[i] + ", ");
+                m_PacketDataHomeWork[i + 1] = m_PacketData[i];  // HomeWork 2
             }
-            _Read(m_PacketDataNoReverse);
+            for (var i = 0; i < m_Pos+1; i++)
+            {
+                Console.Write(m_PacketDataHomeWork[i] + ", ");  // HomeWork 2
+            }
+
 
             Console.ReadLine();
         }
@@ -85,13 +94,6 @@ namespace ChatCoreTest
 
         private static void _Read(byte[] packetData)     //將 m_PacketData 資料陣列，重新編譯成可視讀之文字
         {
-            string[] pd = new String[3];
-            Console.WriteLine("");
-
-            //string[] pd = packetData;
-
-            Console.WriteLine("");
-
             Console.WriteLine($"整數:{BitConverter.ToInt32(packetData, 0)}");     //編譯成整數
             Console.WriteLine($"浮點數:{BitConverter.ToSingle(packetData, 4)}");   //編譯成浮點數
             Console.WriteLine($"字串:{Encoding.Unicode.GetString(packetData, 12, packetData.Length - 12)}");  //編譯成字串
