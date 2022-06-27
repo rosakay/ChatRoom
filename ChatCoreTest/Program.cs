@@ -24,15 +24,18 @@ namespace ChatCoreTest
             Console.WriteLine($"HomeWork1: ");
             _Read(m_PacketDataNoReverse);   // HomeWork 1
 
-            m_PacketDataHomeWork = new byte[m_Pos+1];   // HomeWork 2
+            m_PacketDataHomeWork = new byte[m_Pos+1];   // HomeWork 2，設定確切的陣列大小
 
             //Console.Write($"Output Byte array(length:{m_Pos}): ");
+
             Console.Write($"HomeWork2: ");
-            m_PacketDataHomeWork[0] = (byte)m_Pos;
+
+            m_PacketDataHomeWork[0] = (byte)m_Pos;  // 將m_PacketDataHomeWork第一格寫入封包大小
+
             for (var i = 0; i < m_Pos; i++)
             {
                 //Console.Write(m_PacketData[i] + ", ");
-                m_PacketDataHomeWork[i + 1] = m_PacketData[i];  // HomeWork 2
+                m_PacketDataHomeWork[i + 1] = m_PacketData[i];  // HomeWork 2，將m_PacketData內容複製進 m_PacketDataHomeWork 第一格之後的位置
             }
             for (var i = 0; i < m_Pos+1; i++)
             {
