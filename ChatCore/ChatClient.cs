@@ -7,8 +7,11 @@ namespace ChatCore
     string m_UserName = "";
     private Transmitter m_Transmitter = new Transmitter();
 
+<<<<<<< HEAD
     public event EventHandler<MessageCommand> OnReceiveMessage;
     
+=======
+>>>>>>> master
     public ChatClient()
     {
     }
@@ -69,8 +72,11 @@ namespace ChatCore
     public void OnMessageCommand(Transmitter sender, MessageCommand command)
     {
       Console.WriteLine("{0}: {1}", command.m_UserName, command.m_Message);
+<<<<<<< HEAD
 
       OnReceiveMessage?.Invoke(this, command);
+=======
+>>>>>>> master
     }
   }
 }
