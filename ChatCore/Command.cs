@@ -20,9 +20,9 @@ namespace ChatCore
     private int m_BeginPos;
     private int m_Pos;
 
-    protected Command(int commandType)
+    protected Command(int command)
     {
-      m_Command = commandType;
+      m_Command = command;
     }
 
     public static void FetchHeader(out int length, out int command, byte[] packetData, int beginPos)
